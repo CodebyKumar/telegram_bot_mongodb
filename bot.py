@@ -140,6 +140,25 @@ if __name__ == "__main__":
     if not BOT_TOKEN:
         print("Error: TELEGRAM_BOT_TOKEN missing")
     else:
+        # Dummy Web Server for Render
+        import threading
+        from http.server import HTTPServer, BaseHTTPRequestHandler
+
+        class HealthCheckHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"OK")
+
+        def start_web_server():
+            port = int(os.environ.get("PORT", 8080))
+            server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+            print(f"Dummy server listening on port {port}")
+            server.serve_forever()
+
+        # Run web server in background thread
+        threading.Thread(target=start_web_server, daemon=True).start()
+
         app = ApplicationBuilder().token(BOT_TOKEN).build()
 
         app.add_handler(CommandHandler("start", start))
