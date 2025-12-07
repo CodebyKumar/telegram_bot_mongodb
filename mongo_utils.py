@@ -2,13 +2,12 @@ import pandas as pd
 from pymongo import MongoClient
 import certifi
 import re
-import os
 
 _client = None
 
 
 def get_mongo_client(connection_string):
-    """Create or reuse a global MongoDB client."""
+    """Create or reuse global MongoDB client (connection pooling)."""
     global _client
     if _client is None:
         _client = MongoClient(connection_string, tlsCAFile=certifi.where())
@@ -22,6 +21,7 @@ def get_mongo_collection(connection_string, database_name, collection_name):
 
 
 def export_mongo_collection_to_csv(connection_string, database_name, collection_name, output_file="registrations.csv"):
+    """Export entire collection into a CSV file."""
     try:
         collection = get_mongo_collection(connection_string, database_name, collection_name)
         data = list(collection.find({}))
@@ -31,6 +31,11 @@ def export_mongo_collection_to_csv(connection_string, database_name, collection_
             return None
 
         df = pd.DataFrame(data)
+
+        # Remove MongoDB ObjectId for CSV
+        if "_id" in df.columns:
+            df.drop(columns=["_id"], inplace=True)
+
         df.to_csv(output_file, index=False)
         return output_file
 
@@ -40,6 +45,7 @@ def export_mongo_collection_to_csv(connection_string, database_name, collection_
 
 
 def get_stats(connection_string, database_name, collection_name):
+    """Count total documents in the collection."""
     try:
         collection = get_mongo_collection(connection_string, database_name, collection_name)
         total = collection.count_documents({})
@@ -50,6 +56,7 @@ def get_stats(connection_string, database_name, collection_name):
 
 
 def find_team_by_name(connection_string, database_name, collection_name, team_name):
+    """Case-insensitive safe match using regex."""
     try:
         if not team_name:
             return None
