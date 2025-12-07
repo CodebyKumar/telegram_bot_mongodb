@@ -23,9 +23,9 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # MongoDB Config
-CONNECTION_STRING = "mongodb+srv://enghimanshu:enghimanshu@cluster0.vd8qblh.mongodb.net/"
-DATABASE_NAME = "brewathon-2k25"
-COLLECTION_NAME = "registrations"
+CONNECTION_STRING =os.getenv("CONNECTION_STRING")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 # Bot token
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
