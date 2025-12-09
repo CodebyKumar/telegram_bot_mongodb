@@ -15,6 +15,11 @@ def create_app(telegram_app) -> FastAPI:
         """Health check endpoint."""
         return {"status": "Bot is running!"}
     
+    @app.head('/')
+    async def index_head():
+        """Health check HEAD endpoint."""
+        return {"status": "ok"}
+    
     @app.post('/webhook')
     async def webhook(request: Request):
         """Handle webhook updates from Telegram."""
@@ -23,7 +28,7 @@ def create_app(telegram_app) -> FastAPI:
             update = Update.de_json(json_data, telegram_app.bot)
             
             # Process update asynchronously
-            await telegram_app.process_update(update)
+            await telegram_app.update_queue.put(update)
             
             return {"status": "ok"}
         except Exception as e:
