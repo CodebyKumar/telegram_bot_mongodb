@@ -1,8 +1,11 @@
 """Bot command handlers."""
 import os
 import asyncio
+import logging
 from telegram import Update
 from telegram.ext import ContextTypes
+
+logger = logging.getLogger(__name__)
 
 from src.db.queries import (
     export_mongo_collection_to_csv,
@@ -21,6 +24,10 @@ from src.bot.helpers import (
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command."""
+    user = update.effective_user
+    username = user.username or user.first_name or "Unknown"
+    logger.info(f"User @{username} (ID: {user.id}) executed /start")
+    
     await update.message.reply_text(
         "Welcome to the Brewathon Bot! 🦥\nUse the menu below to interact.",
         reply_markup=get_main_keyboard()
@@ -31,6 +38,9 @@ async def send_stats(update: Update, context: ContextTypes.DEFAULT_TYPE,
                      connection_string: str, database_name: str, collection_name: str):
     """Handle /stats command and View Stats button."""
     chat_id = update.effective_chat.id
+    user = update.effective_user
+    username = user.username or user.first_name or "Unknown"
+    logger.info(f"User @{username} (ID: {user.id}) requested stats")
 
     loop = asyncio.get_running_loop()
     stats = await loop.run_in_executor(
@@ -46,6 +56,9 @@ async def send_csv(update: Update, context: ContextTypes.DEFAULT_TYPE,
                    connection_string: str, database_name: str, collection_name: str):
     """Handle /registrations command and Download Registrations button."""
     chat_id = update.effective_chat.id
+    user = update.effective_user
+    username = user.username or user.first_name or "Unknown"
+    logger.info(f"User @{username} (ID: {user.id}) requested CSV download")
 
     status_msg = await context.bot.send_message(chat_id=chat_id, text="Generating CSV...")
 
@@ -77,11 +90,16 @@ async def send_csv(update: Update, context: ContextTypes.DEFAULT_TYPE,
 async def find_command(update: Update, context: ContextTypes.DEFAULT_TYPE,
                        connection_string: str, database_name: str, collection_name: str):
     """Handle /find command to search for a team."""
+    user = update.effective_user
+    username = user.username or user.first_name or "Unknown"
+    
     if not context.args:
+        logger.info(f"User @{username} (ID: {user.id}) used /find without team name")
         await update.message.reply_text("Usage: /find team_name")
         return
 
     team_name = " ".join(context.args)
+    logger.info(f"User @{username} (ID: {user.id}) searched for team: '{team_name}'")
 
     loop = asyncio.get_running_loop()
     team = await loop.run_in_executor(
@@ -101,6 +119,9 @@ async def send_transactions(update: Update, context: ContextTypes.DEFAULT_TYPE,
                             connection_string: str, database_name: str, collection_name: str):
     """Handle /transactions command and View Transactions button."""
     chat_id = update.effective_chat.id
+    user = update.effective_user
+    username = user.username or user.first_name or "Unknown"
+    logger.info(f"User @{username} (ID: {user.id}) requested transactions list")
     
     loop = asyncio.get_running_loop()
     data = await loop.run_in_executor(
@@ -120,6 +141,9 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE,
                       connection_string: str, database_name: str, collection_name: str):
     """Handle text messages (menu button clicks)."""
     text = update.message.text.strip()
+    user = update.effective_user
+    username = user.username or user.first_name or "Unknown"
+    logger.info(f"User @{username} (ID: {user.id}) sent message: '{text}'")
 
     if text.lower() == "hi":
         await update.message.reply_text(
