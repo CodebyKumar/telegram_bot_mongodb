@@ -5,9 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "certifi>=2025.11.12",
-    "pandas>=2.3.3",
-    "pymongo>=4.15.5",
-    "python-dotenv>=1.2.1",
-    "python-telegram-bot>=22.5",
+    "certifi==2025.11.12",
+    "fastapi==0.115.6",
+    "pandas==2.2.3",
+    "pymongo==4.10.1",
+    "python-dotenv==1.0.1",
+    "python-telegram-bot==21.9",
+    "uvicorn==0.34.0",
 ]
