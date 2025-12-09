@@ -22,7 +22,7 @@ from src.bot.helpers import (
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command."""
     await update.message.reply_text(
-        "Welcome to the Brewathon Bot! 🎉\nUse the menu below to interact.",
+        "Welcome to the Brewathon Bot! 🦥\nUse the menu below to interact.",
         reply_markup=get_main_keyboard()
     )
 
